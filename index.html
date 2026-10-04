@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ar" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tayseer AgriSaT | Complex Tech. Simple Decisions.</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Tajawal', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow-x: hidden; scroll-behavior: smooth; }
+    #root { min-height: 100vh; }
+    
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
+
+  <!-- Import Maps for React, Three.js, Framer Motion -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "three": "https://esm.sh/three@0.160.0",
+        "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.12?external=react,react-dom,three",
+        "@react-three/drei": "https://esm.sh/@react-three/drei@9.96.1?external=react,react-dom,three,@react-three/fiber",
+        "framer-motion": "https://esm.sh/framer-motion@11.0.3?external=react,react-dom",
+        "lucide-react": "https://esm.sh/lucide-react@0.323.0?external=react"
+      }
+    }
+  </script>
+
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-700">
+  <div id="root"></div>
+
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect, Suspense, useRef } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { motion, AnimatePresence } from 'framer-motion';
+    import { Canvas, useFrame } from '@react-three/fiber';
+    import { MeshDistortMaterial, Float, Environment } from '@react-three/drei';
+    import { Moon, Sun, Droplet, Sprout, Activity, Cpu, Leaf, MessageSquare, MapPin, Users, Phone, Mail, Combine, ShieldCheck, TrendingUp, DollarSign, Building2, CheckCircle2, Satellite, Database, Wind, ArrowDown, Radio, Zap } from 'lucide-react';
+
+    //    const LiquidBlob = ({ color, isDark }) => {
+      const meshRef = useRef();
+      useFrame((state) => {
+        if (meshRef.current) {
+          meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.15;
+          meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
+        }
+      });
+      return (
+        <Float speed={2} rotationIntensity={1} floatIntensity={1.5}>
+          <mesh ref={meshRef} scale={1.8}>
+            {/* Optimized for mobile: 64 segments instead of 128, preserves look but stops lag */}
+            <sphereGeometry args={[1, 64, 64]} />
+            <MeshDistortMaterial
+              color={color}
+              envMapIntensity={isDark ? 0.8 : 2}
+              clearcoat={1}
+              clearcoatRoughness={0.1}
+              metalness={0.8}
+              roughness={0.1}
+              distort={0.4}
+              speed={2}
+              transmission={0.6}
+              thickness={1.5}
+            />
+          </mesh>
+        </Float>
+      );
+    };
+
+    //    const GlassCard = ({ children, delay, colorScheme, className = "" }) => (
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, delay: delay, ease: "easeOut" }}
+        whileHover={{ y: -5, scale: 1.02 }}
+        className={`relative overflow-hidden rounded-3xl p-6 md:p-8 backdrop-blur-xl bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] group transition-all duration-300 z-10 ${className}`}
+      >
+        <div className={`absolute inset-0 bg-gradient-to-br ${colorScheme} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-[0.15] transition-opacity duration-500 pointer-events-none`} />
+        <div className="relative z-10 h-full flex flex-col">{children}</div>
+      </motion.div>
+    );
+
+    const SectionTitle = ({ title, subtitle, gradient }) => (
+      <div className="text-center mb-16" dir="rtl">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className={`text-3xl md:text-5xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r ${gradient}`}
+        >
+          {title}
+        </motion.h2>
+        {subtitle && (
+          <motion.p 
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed"
+          >
+            {subtitle}
+          </motion.p>
+        )}
+      </div>
+    );
+
+    //    const Header = ({ theme, setTheme, division, setDivision }) => {
+      const isAgri = division === 'agrisat';
+      const isDark = theme === 'dark';
+      
+      const getLogoSrc = () => {
+        if (isAgri && isDark) return '1000653745_2.png';
+        if (isAgri && !isDark) return '1000653744_2.png';
+        if (!isAgri && isDark) return '1000653743_2.png';
+        if (!isAgri && !isDark) return '1000653742_2.png';
+      };
+
+      return (
+        <motion.header 
+          initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+          className="flex flex-col md:flex-row justify-between items-center py-6 px-4 md:px-8 max-w-7xl mx-auto w-full z-50 relative"
+          dir="ltr"
+        >
+          <div className="flex items-center gap-3 mb-6 md:mb-0">
+            <img 
+              src={getLogoSrc()} 
+              alt="Tayseer Logo" 
+              className="h-12 md:h-16 object-contain transition-all duration-300"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                document.getElementById('text-logo-fallback').style.display = 'flex';
+              }}
+            />
+            <div id="text-logo-fallback" className="hidden flex-col">
+              <h1 className="text-3xl font-black tracking-tight flex items-center text-slate-900 dark:text-white">
+                Tay<span className={isAgri ? 'text-blue-500' : 'text-purple-500'}>see</span>r
+              </h1>
+              <span className="text-xs font-bold tracking-widest uppercase text-slate-500">
+                {isAgri ? 'Agri-SaT Farms' : 'Lavender Life'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 bg-white/70 dark:bg-black/40 backdrop-blur-md p-1.5 rounded-full border border-slate-200 dark:border-white/10 shadow-sm" dir="rtl">
+            <div className="flex rounded-full overflow-hidden bg-slate-200/50 dark:bg-white/5 relative">
+              <button
+                onClick={() => setDivision('lavender')}
+                className={`relative px-4 md:px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 z-10 ${
+                  !isAgri ? 'text-white bg-purple-600 shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                النباتات الطبية
+              </button>
+              <button
+                onClick={() => setDivision('agrisat')}
+                className={`relative px-4 md:px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 z-10 ${
+                  isAgri ? 'text-white bg-blue-600 shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                المزارع (AgriSaT)
+              </button>
+            </div>
+
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2.5 rounded-full bg-white dark:bg-white/10 shadow-sm hover:scale-105 transition-all text-slate-800 dark:text-white"
+            >
+              {theme === 'dark' ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} />}
+            </button>
+          </div>
+        </motion.header>
+      );
+    };
+
+    //    const AgriSatContent = () => (
+      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="max-w-7xl mx-auto px-4 py-8 md:py-16 space-y-24 md:space-y-32" dir="rtl">
+        
+        {/* Hero Section */}
+        <div className="text-center relative z-10" dir="ltr">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="inline-block px-4 py-1.5 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 font-bold text-sm mb-6 border border-blue-200 dark:border-blue-700/50 backdrop-blur-sm">
+            Egyptian Agri-Tech Startup
+          </motion.div>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-400 leading-tight">
+            Complex Tech.<br/>Simple Decisions.
+          </motion.h2>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-lg md:text-2xl text-slate-700 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-medium" dir="rtl">
+            منصة زراعية ذكية تدمج صور الأقمار الصناعية، مستشعرات الحافة والذكاء الاصطناعي لتحويل البيانات الزراعية المعقدة إلى قرارات ميدانية بسيطة.
+          </motion.p>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-10 flex flex-wrap justify-center gap-4">
+            <button className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-1 flex items-center gap-2">
+              <MessageSquare size={20} /> طلب نسخة تجريبية
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Features Original Restored */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <GlassCard delay={0.1} colorScheme="from-blue-500 to-cyan-500">
+            <Activity className="text-blue-600 dark:text-blue-400 mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Field-Ready Visuals</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+              نحول الخرائط المعقدة لخرائط حرارية بسيطة (NDVI & NDWI) مصممة لاتخاذ القرارات في الحقل مباشرة وليس للمهندسين فقط.
+            </p>
+          </GlassCard>
+
+          <GlassCard delay={0.2} colorScheme="from-blue-500 to-cyan-500">
+            <MessageSquare className="text-blue-600 dark:text-blue-400 mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Works Fully Offline</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+              مساعد الذكاء الاصطناعي (Mini-Tayseer Chat) مزود بالمعرفة الزراعية ويعمل بكفاءة بدون إنترنت.
+            </p>
+          </GlassCard>
+
+          <GlassCard delay={0.3} colorScheme="from-blue-500 to-cyan-500">
+            <Cpu className="text-blue-600 dark:text-blue-400 mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Sensorless Hardware</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+              أجهزة حافة منخفضة التكلفة لمراقبة صحة التربة والآلات، ترسل تنبيهات فورية عبر WhatsApp.
+            </p>
+          </GlassCard>
+        </div>
+
+        {/* Stats Original Restored */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 text-center" dir="ltr">
+          {[
+            { value: "3,500+", label: "Feddans Monitored" },
+            { value: "6", label: "Awards & Recognitions" },
+            { value: "100%", label: "Data Automation" },
+            { value: "0", label: "Dashboards Needed" }
+          ].map((stat, i) => (
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} key={i} 
+              className="p-6 rounded-3xl bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm"
+            >
+              <div className="text-3xl md:text-4xl font-black text-blue-600 dark:text-blue-400 mb-2">{stat.value}</div>
+              <div className="text-xs md:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* NEW: Input / Output Section (Marketing Data) */}
+        <div className="relative py-10">
+          <SectionTitle 
+            title="من البيانات الخام إلى رؤية ميدانية" 
+            subtitle="نجمع الإشارات الفضائية والأرضية لنستخرج لك مؤشرات زراعية وبيئية دقيقة."
+            gradient="from-blue-600 to-cyan-500"
+          />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 lg:gap-10 items-center max-w-6xl mx-auto">
+             {/* Inputs */}
+             <div className="space-y-4">
+                <div className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
+                  <h4 className="text-xl font-black text-slate-800 dark:text-white mb-6 text-center border-b border-slate-200 dark:border-white/10 pb-4">المدخلات (الرصد)</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 dark:bg-white/5">
+                      <div className="p-3 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl"><Satellite/></div>
+                      <div>
+                        <p className="font-bold text-slate-800 dark:text-white">صور الأقمار الصناعية</p>
+                        <p className="text-xs text-slate-500 font-medium mt-1">Sentinel-1/2, Landsat 8/9, ERA5</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 dark:bg-white/5">
+                      <div className="p-3 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl"><Wind/></div>
+                      <div>
+                        <p className="font-bold text-slate-800 dark:text-white">مستشعرات الحقل</p>
+                        <p className="text-xs text-slate-500 font-medium mt-1">غازات التربة (CO2, NH3) والضغط</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+             </div>
+
+             {/* Center Arrow */}
+             <div className="flex justify-center py-4 lg:py-0">
+                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30 z-10">
+                   <Activity className="text-white animate-pulse" size={32} />
+                </div>
+                <ArrowDown className="text-blue-500 absolute mt-20 lg:hidden animate-bounce" size={24} />
+             </div>
+
+             {/* Outputs */}
+             <div className="space-y-4">
+               <div className="bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-sm rounded-3xl p-6 border-l-4 border-blue-500 shadow-sm">
+                  <h4 className="text-xl font-black text-blue-900 dark:text-blue-300 mb-6 text-center border-b border-blue-200 dark:border-blue-800/50 pb-4">المخرجات (التحليل)</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-3 rounded-2xl bg-white dark:bg-black/40">
+                      <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl"><Leaf/></div>
+                      <div>
+                        <p className="font-bold text-slate-800 dark:text-white">مؤشرات حيوية ومناخية</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-1">خرائط صحة النبات (NDVI)، التبخر (ET).</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 p-3 rounded-2xl bg-white dark:bg-black/40">
+                      <div className="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl"><Database/></div>
+                      <div>
+                        <p className="font-bold text-slate-800 dark:text-white">استدامة التربة</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-1">المادة العضوية (SOM)، ورصد الكربون.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        {/* NEW: Target Audience / Pricing Models (Fixed Contrast) */}
+        <div>
+          <SectionTitle 
+            title="نماذج عمل مرنة تناسب حجم مزرعتك" 
+            gradient="from-blue-600 to-cyan-500"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+             <GlassCard delay={0.1} colorScheme="from-emerald-500 to-green-500" className="border-2 border-transparent hover:border-emerald-500/50">
+               <div className="flex justify-between items-start mb-6">
+                 <div>
+                   <h3 className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mb-2">المزارع الصغير</h3>
+                   <span className="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Pay-Per-Report</span>
+                 </div>
+                 <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl"><Users className="text-emerald-700 dark:text-emerald-400" size={32}/></div>
+               </div>
+               <ul className="space-y-4 text-slate-700 dark:text-slate-300 text-sm font-semibold">
+                 <li className="flex items-start gap-3"><CheckCircle2 size={20} className="text-emerald-500 shrink-0 mt-0.5"/> <span>بدون أجهزة معقدة: لا حاجة لشراء أو تركيب أي أجهزة مادية.</span></li>
+                 <li className="flex items-start gap-3"><CheckCircle2 size={20} className="text-emerald-500 shrink-0 mt-0.5"/> <span>الدفع بالطلب: ادفع فقط مقابل تقارير وبرامج تسميد مخصصة.</span></li>
+                 <li className="flex items-start gap-3"><CheckCircle2 size={20} className="text-emerald-500 shrink-0 mt-0.5"/> <span>تنبيهات بسيطة عبر WhatsApp.</span></li>
+               </ul>
+             </GlassCard>
+
+             <GlassCard delay={0.2} colorScheme="from-blue-500 to-cyan-500" className="border-2 border-transparent hover:border-blue-500/50">
+               <div className="flex justify-between items-start mb-6">
+                 <div>
+                   <h3 className="text-2xl font-black text-blue-700 dark:text-blue-400 mb-2">المزارع الكبرى والشركات</h3>
+                   <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Hardware + SaaS</span>
+                 </div>
+                 <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl"><Building2 className="text-blue-700 dark:text-blue-400" size={32}/></div>
+               </div>
+               <ul className="space-y-4 text-slate-700 dark:text-slate-300 text-sm font-semibold">
+                 <li className="flex items-start gap-3"><CheckCircle2 size={20} className="text-blue-500 shrink-0 mt-0.5"/> <span>نظام متكامل: اشتراك سنوي يشمل المنصة وأجهزة الحافة.</span></li>
+                 <li className="flex items-start gap-3"><CheckCircle2 size={20} className="text-blue-500 shrink-0 mt-0.5"/> <span>مراقبة الآلات واكتشاف أعطال الري المحوري (Pivots).</span></li>
+                 <li className="flex items-start gap-3"><CheckCircle2 size={20} className="text-blue-500 shrink-0 mt-0.5"/> <span>التأهيل لشهادات الكربون (Carbon Credits).</span></li>
+               </ul>
+             </GlassCard>
+          </div>
+        </div>
+      </motion.div>
+    );
+
+    //    const LavenderContent = () => (
+      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-7xl mx-auto px-4 py-8 md:py-16 space-y-24 md:space-y-32" dir="rtl">
+        
+        {/* Hero Section */}
+        <div className="text-center relative z-10" dir="ltr">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="inline-block px-4 py-1.5 rounded-full bg-purple-100/80 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 font-bold text-sm mb-6 border border-purple-200 dark:border-purple-700/50 backdrop-blur-sm">
+            Pharma-Grade Essential Oils
+          </motion.div>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-500 leading-tight">
+            From Space to the Still.
+          </motion.h2>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-lg md:text-2xl text-slate-700 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium" dir="rtl">
+            الهندسة العكسية لجودة الزيوت العطرية (Linalool). نتتبع اللحظة المثالية للحصاد من الفضاء لمنع تعفن الجذور ومطابقة المعايير الصيدلانية.
+          </motion.p>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-10 flex justify-center">
+            <button className="px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg shadow-lg shadow-purple-500/30 transition-all hover:-translate-y-1">
+              انضم لبرنامج التصدير
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Features Original Restored */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <GlassCard delay={0.1} colorScheme="from-purple-500 to-pink-500">
+             <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="p-4 bg-purple-100 dark:bg-purple-900/50 rounded-2xl shrink-0"><Radio className="text-purple-600 dark:text-purple-400" size={36} /></div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">1. Space Monitoring</h3>
+                  <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                    تتتبع الأقمار رطوبة المظلة النباتية (NDWI). الخريطة تتحول للون البنفسجي عند نقطة الإجهاد المائي المعتدل.. إنها اللحظة المثالية للحصاد!
+                  </p>
+                </div>
+              </div>
+          </GlassCard>
+          <GlassCard delay={0.2} colorScheme="from-purple-500 to-pink-500">
+             <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="p-4 bg-pink-100 dark:bg-pink-900/50 rounded-2xl shrink-0"><ShieldCheck className="text-pink-600 dark:text-pink-400" size={36} /></div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">2. Ground Protection</h3>
+                  <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                    متحكمات (CM-60) على صمامات التنقيط تكتشف انخفاض الضغط، وتغلق المياه آلياً لتجنب تعفن الجذور الحساسة (Root Rot).
+                  </p>
+                </div>
+              </div>
+          </GlassCard>
+        </div>
+
+        {/* ROI / Science Stats Original Restored */}
+        <div>
+          <SectionTitle title="العائد الاقتصادي والعلمي" gradient="from-purple-600 to-pink-500" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <GlassCard delay={0.3} colorScheme="from-purple-500 to-pink-500" className="text-center">
+              <Droplet className="text-purple-600 dark:text-purple-400 mx-auto mb-4" size={36} />
+              <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">The 33% Sweet Spot</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">تحفيز النبات بـ 33% عجز مائي لفرز أعلى نسبة من مادة Linalool كآلية دفاعية.</p>
+            </GlassCard>
+            <GlassCard delay={0.4} colorScheme="from-purple-500 to-pink-500" className="text-center border-2 border-purple-500">
+              <TrendingUp className="text-pink-600 dark:text-pink-400 mx-auto mb-4" size={36} />
+              <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">+47% زيادة في الزيت</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">رفع إنتاجية الزيوت المطابقة للمواصفات الصيدلانية مقارنة بالزراعة العادية.</p>
+            </GlassCard>
+            <GlassCard delay={0.5} colorScheme="from-purple-500 to-pink-500" className="text-center">
+              <DollarSign className="text-indigo-600 dark:text-indigo-400 mx-auto mb-4" size={36} />
+              <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">استرداد من أول حصاد</h4>
+              <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">بضعة جرامات إضافية من الزيت المُصدر تغطي تكلفة الاشتراك السنوي بالكامل.</p>
+            </GlassCard>
+          </div>
+        </div>
+      </motion.div>
+    );
+
+    //    const App = () => {
+      const [theme, setTheme] = useState('dark');
+      const [division, setDivision] = useState('agrisat');
+
+      useEffect(() => {
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      }, [theme]);
+
+      const isAgri = division === 'agrisat';
+      const isDark = theme === 'dark';
+      
+      const blobColor = isAgri ? '#3b82f6' : '#a855f7'; 
+      const ambientLightColor = isDark ? (isAgri ? '#e0f2fe' : '#f3e8ff') : '#ffffff';
+
+      return (
+        <div className="relative min-h-screen font-sans selection:bg-blue-500/30 overflow-x-hidden">
+          
+          {/* Background Canvas */}
+          <div className="fixed inset-0 z-0 pointer-events-none">
+            <div className={`absolute inset-0 transition-colors duration-1000 z-10 ${isDark ? 'bg-gradient-to-b from-[#050505] to-[#0a0a0a]/90' : 'bg-slate-50'}`} />
+            
+            {/* Performance Optimized Canvas */}
+            <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 5], fov: 45 }} gl={{ powerPreference: "high-performance", antialias: false }}>
+              <ambientLight intensity={isDark ? 0.5 : 2} color={ambientLightColor} />
+              <directionalLight position={[5, 5, 2]} intensity={isDark ? 1.5 : 1} />
+              <Suspense fallback={null}>
+                <LiquidBlob color={blobColor} isDark={isDark} />
+                <Environment preset={isDark ? 'night' : 'city'} />
+              </Suspense>
+            </Canvas>
+          </div>
+
+          {/* CSS Radial Glow instead of Heavy ContactShadows */}
+          <div className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] max-w-[600px] max-h-[600px] rounded-full blur-[100px] pointer-events-none transition-colors duration-1000 z-0 ${isAgri ? 'bg-blue-500' : 'bg-purple-500'} ${isDark ? 'opacity-20' : 'opacity-[0.05]'}`} />
+
+          {/* Foreground Content */}
+          <div className="relative z-10 flex flex-col min-h-screen">
+            <Header theme={theme} setTheme={setTheme} division={division} setDivision={setDivision} />
+            
+            <main className="flex-grow flex flex-col justify-center w-full">
+              <AnimatePresence mode="wait">
+                {division === 'agrisat' ? <AgriSatContent key="agrisat" /> : <LavenderContent key="lavender" />}
+              </AnimatePresence>
+            </main>
+
+            {/* Footer Restored */}
+            <footer className="mt-10 border-t border-slate-200 dark:border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-lg pt-16 pb-8 px-4" dir="rtl">
+              <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div className="md:col-span-2">
+                  <h5 className="text-2xl font-black text-slate-800 dark:text-white mb-4">Tayseer AgriSaT</h5>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm font-medium leading-relaxed max-w-md">
+                    منصة زراعية ذكية متكاملة، توفر استخبارات زراعية اقتصادية للمزارع والشركات والجهات المعنية في مصر والسعودية.
+                  </p>
+                </div>
+                <div>
+                  <h5 className="text-lg font-bold text-slate-800 dark:text-white mb-4">نطاق الخدمة</h5>
+                  <ul className="space-y-3 text-slate-600 dark:text-slate-400 text-sm font-medium">
+                    <li>مصر والسعودية (MENA)</li>
+                    <li>المحاصيل والإنتاج الداجني</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 className="text-lg font-bold text-slate-800 dark:text-white mb-4">تواصل معنا</h5>
+                  <ul className="space-y-4 text-slate-600 dark:text-slate-400 text-sm font-medium" dir="ltr">
+                    <li className="flex items-center justify-end gap-3">+20 103 826 6571 <Phone size={18} className="text-blue-500"/></li>
+                    <li className="flex items-center justify-end gap-3">tayseer.agrisat@gmail.com <Mail size={18} className="text-blue-500"/></li>
+                    <li className="flex items-center justify-end gap-3">@Tayseer-AgriSaT <Users size={18} className="text-blue-500"/></li>
+                  </ul>
+                </div>
+              </div>
+              <div className="text-center pt-8 border-t border-slate-200 dark:border-white/10 text-sm text-slate-500 font-bold">
+                <p>© 2026 Tayseer AgriSaT. All rights reserved.</p>
+              </div>
+            </footer>
+          </div>
+        </div>
+      );
+    };
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
+
