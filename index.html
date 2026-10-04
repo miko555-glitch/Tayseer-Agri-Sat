@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ar" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tayseer AgriSaT | Complex Tech. Simple Decisions.</title>
+  
+  <!-- Google Fonts: Tajawal for Arabic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Tajawal', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            agri: {
+              light: '#eff6ff',
+              DEFAULT: '#3b82f6',
+              dark: '#1e3a8a',
+            },
+            lavender: {
+              light: '#faf5ff',
+              DEFAULT: '#a855f7',
+              dark: '#581c87',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow-x: hidden; scroll-behavior: smooth; }
+    #root { min-height: 100vh; }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
+
+  <!-- Import Maps for React, Three.js, Framer Motion -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "three": "https://esm.sh/three@0.160.0",
+        "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.12?external=react,react-dom,three",
+        "@react-three/drei": "https://esm.sh/@react-three/drei@9.96.1?external=react,react-dom,three,@react-three/fiber",
+        "framer-motion": "https://esm.sh/framer-motion@11.0.3?external=react,react-dom",
+        "lucide-react": "https://esm.sh/lucide-react@0.323.0?external=react"
+      }
+    }
+  </script>
+
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-700">
+  <div id="root"></div>
+
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect, Suspense, useRef } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { motion, AnimatePresence } from 'framer-motion';
+    import { Canvas, useFrame } from '@react-three/fiber';
+    import { MeshDistortMaterial, Float, Environment, ContactShadows } from '@react-three/drei';
+    import { Moon, Sun, Droplet, Sprout, Activity, Cpu, Leaf, MessageSquare, Satellite, Radio, Zap, ShieldCheck, TrendingUp, DollarSign, Smartphone, CheckCircle2 } from 'lucide-react';
+    import * as THREE from 'three';
+
+    const LiquidBlob = ({ color, isDark }) => {
+      const meshRef = useRef();
+
+      useFrame((state) => {
+        if (meshRef.current) {
+          meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.15;
+          meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
+        }
+      });
+
+      return (
+        <Float speed={2} rotationIntensity={1} floatIntensity={1.5}>
+          <mesh ref={meshRef} scale={1.8} position={[0, 0, 0]}>
+            <sphereGeometry args={[1, 128, 128]} />
+            <MeshDistortMaterial
+              color={color}
+              envMapIntensity={isDark ? 0.8 : 2.5}
+              clearcoat={1}
+              clearcoatRoughness={0.1}
+              metalness={isDark ? 0.9 : 0.4}
+              roughness={0.1}
+              distort={0.4}
+              speed={2.5}
+              transmission={isDark ? 0.8 : 0.2}
+              thickness={1.5}
+            />
+          </mesh>
+        </Float>
+      );
+    };
+
+    const GlassCard = ({ children, delay, colorScheme, className = "" }) => {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, delay: delay, ease: "easeOut" }}
+          whileHover={{ y: -5, scale: 1.02 }}
+          className={`
+            relative overflow-hidden rounded-3xl p-8
+            backdrop-blur-xl bg-white/70 dark:bg-white/5
+            border border-slate-200 dark:border-white/10
+            shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+            dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]
+            group transition-all duration-300 z-10
+            ${className}
+          `}
+        >
+          <div className={`absolute inset-0 bg-gradient-to-br ${colorScheme} opacity-0 group-hover:opacity-[0.03] dark:group-hover:opacity-10 transition-opacity duration-500`} />
+          <div className="relative z-10">{children}</div>
+        </motion.div>
+      );
+    };
+
+    const SectionTitle = ({ title, subtitle, gradient }) => (
+      <div className="text-center mb-16" dir="rtl">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className={`text-3xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r ${gradient}`}
+        >
+          {title}
+        </motion.h2>
+        {subtitle && (
+          <motion.p 
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto"
+          >
+            {subtitle}
+          </motion.p>
+        )}
+      </div>
+    );
+
+    const Header = ({ theme, setTheme, division, setDivision }) => {
+      const isAgri = division === 'agrisat';
+      const isDark = theme === 'dark';
+      
+      // Dynamic Logo Logic based on user's filenames
+      const getLogoSrc = () => {
+        if (isAgri && isDark) return '1000653745_2.png';
+        if (isAgri && !isDark) return '1000653744_2.png';
+        if (!isAgri && isDark) return '1000653743_2.png';
+        if (!isAgri && !isDark) return '1000653742_2.png';
+      };
+
+      return (
+        <motion.header 
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex flex-col md:flex-row justify-between items-center py-6 px-4 md:px-8 max-w-7xl mx-auto w-full z-50 relative"
+          dir="ltr"
+        >
+          {/* Logo Section */}
+          <div className="flex items-center gap-3 mb-6 md:mb-0">
+            <img 
+              src={getLogoSrc()} 
+              alt="Tayseer Agri-Sat" 
+              className="h-10 md:h-14 object-contain drop-shadow-md transition-all duration-300"
+              onError={(e) => {
+                // Fallback if images are missing
+                e.target.style.display = 'none';
+                document.getElementById('text-logo-fallback').style.display = 'flex';
+              }}
+            />
+            {/* Fallback Text Logo */}
+            <div id="text-logo-fallback" className="hidden flex-col">
+              <h1 className="text-3xl font-black tracking-tight flex items-center">
+                Tay<span className={isAgri ? 'text-blue-500' : 'text-purple-500'}>see</span>r
+              </h1>
+              <span className="text-xs font-bold tracking-widest uppercase text-slate-500">
+                {isAgri ? 'Agri-SaT Farms' : 'Lavender Life'}
+              </span>
+            </div>
+          </div>
+
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-4 bg-white/50 dark:bg-black/40 backdrop-blur-xl p-2 rounded-full border border-slate-200 dark:border-white/10 shadow-lg" dir="rtl">
+            <div className="flex rounded-full overflow-hidden bg-slate-200/50 dark:bg-white/5 p-1 relative">
+              <button
+                onClick={() => setDivision('lavender')}
+                className={`relative px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 z-10 ${
+                  !isAgri ? 'text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {!isAgri && <motion.div layoutId="nav-pill" className="absolute inset-0 bg-purple-500 rounded-full -z-10 shadow-lg" />}
+                النباتات الطبية
+              </button>
+              <button
+                onClick={() => setDivision('agrisat')}
+                className={`relative px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 z-10 ${
+                  isAgri ? 'text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {isAgri && <motion.div layoutId="nav-pill" className="absolute inset-0 bg-blue-500 rounded-full -z-10 shadow-lg" />}
+                إدارة المزارع
+              </button>
+            </div>
+
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-3 rounded-full bg-white dark:bg-white/10 shadow-sm border border-slate-200 dark:border-transparent hover:scale-110 transition-all"
+            >
+              {theme === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-indigo-900" />}
+            </button>
+          </div>
+        </motion.header>
+      );
+    };
+
+    const AgriSatContent = () => (
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 50 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto px-4 py-12 space-y-32"
+        dir="rtl"
+      >
+        {/* Hero Section */}
+        <div className="text-center" dir="ltr">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            className="inline-block px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold text-sm mb-6 border border-blue-200 dark:border-blue-700/50"
+          >
+            B2B Smart Agriculture Platform
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-400 leading-tight"
+          >
+            Complex Tech.<br/>Simple Decisions.
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+            className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed" dir="rtl"
+          >
+            أول إطار عمل متكامل يدمج بين صور الأقمار الصناعية، مستشعرات الحافة (Edge Sensors)، والذكاء الاصطناعي لتحويل البيانات المعقدة إلى قرارات ميدانية بسيطة في لغة يفهمها المزارع.
+          </motion.p>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-10 flex justify-center gap-4">
+            <button className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/30 transition-all hover:-translate-y-1">
+              طلب نسخة تجريبية
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Core Services */}
+        <div>
+          <SectionTitle 
+            title="لماذا تختار Tayseer AgriSaT؟" 
+            subtitle="نحن لا نعطيك جداول بيانات معقدة، بل نعطيك إجابات مباشرة."
+            gradient="from-blue-600 to-cyan-500"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <GlassCard delay={0.1} colorScheme="from-blue-500 to-cyan-500">
+              <div className="bg-blue-100 dark:bg-blue-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                <Activity className="text-blue-600 dark:text-blue-400" size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">خرائط حرارية مبسطة</h3>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                نحول بيانات الأقمار الصناعية (NDVI & NDWI) إلى خرائط ألوان بسيطة. الأحمر يعني خطر، الأخضر يعني سليم. قرارات فورية في الحقل بدون الحاجة لمهندس مختص.
+              </p>
+            </GlassCard>
+
+            <GlassCard delay={0.2} colorScheme="from-blue-500 to-cyan-500">
+              <div className="bg-blue-100 dark:bg-blue-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                <MessageSquare className="text-blue-600 dark:text-blue-400" size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">مساعد ذكي يعمل Offline</h3>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                (Mini-Tayseer Chat) مزود بأحدث المعارف الزراعية. لا إنترنت في المزرعة؟ لا مشكلة. المساعد يعمل محلياً بكفاءة تامة للإجابة على استفساراتك.
+              </p>
+            </GlassCard>
+
+            <GlassCard delay={0.3} colorScheme="from-blue-500 to-cyan-500">
+              <div className="bg-blue-100 dark:bg-blue-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                <Cpu className="text-blue-600 dark:text-blue-400" size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">أجهزة CM-60 منخفضة التكلفة</h3>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                متحكمات ذكية (بدون حساسات مدفونة مكلفة) تركب على أجهزة الري المحوري (Pivots). تكتشف الأعطال الصامتة وترسل لك تنبيهات استباقية عبر WhatsApp.
+              </p>
+            </GlassCard>
+          </div>
+        </div>
+
+        {/* How it works / The Journey */}
+        <div>
+           <SectionTitle 
+            title="رحلة المزارع معنا" 
+            subtitle="نظام آلي بالكامل يعمل في الخلفية لحماية مزرعتك"
+            gradient="from-blue-600 to-cyan-500"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            <div className="hidden md:block absolute top-1/2 right-0 left-0 h-1 bg-gradient-to-l from-blue-200 to-cyan-200 dark:from-blue-900 dark:to-cyan-900 -translate-y-1/2 z-0 rounded-full" />
+            
+            {[
+              { step: "01", title: "مراقبة مستمرة", desc: "الأقمار الصناعية وأجهزة CM-60 تراقب رطوبة التربة وأداء الماكينات على مدار الساعة.", icon: Satellite },
+              { step: "02", title: "اكتشاف الأعطال", desc: "الذكاء الاصطناعي يحلل البيانات ويكتشف أي ارتفاع في الحرارة أو نقص في المياه قبل تفاقم المشكلة.", icon: Activity },
+              { step: "03", title: "تنبيه فوري", desc: "تصلك رسالة WhatsApp فورية: 'يا ريس، البرج الرابع حرارته مرتفعة، اغلق المحبس الآن'.", icon: Smartphone }
+            ].map((item, i) => (
+              <GlassCard key={i} delay={0.2 * i} className="border-t-4 border-t-blue-500 z-10 bg-white/90 dark:bg-black/50">
+                <div className="text-4xl font-black text-slate-200 dark:text-white/10 absolute top-4 left-6">{item.step}</div>
+                <item.icon className="text-blue-500 mb-4" size={40} />
+                <h4 className="text-xl font-bold mb-3">{item.title}</h4>
+                <p className="text-slate-600 dark:text-slate-400">{item.desc}</p>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center" dir="ltr">
+          {[
+            { value: "3,500+", label: "Feddans Monitored" },
+            { value: "6", label: "Awards & Recognitions" },
+            { value: "100%", label: "Data Automation" },
+            { value: "0", label: "Dashboards Needed" }
+          ].map((stat, i) => (
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              key={i} 
+              className="p-8 rounded-3xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-blue-500/20 shadow-lg"
+            >
+              <div className="text-4xl md:text-5xl font-black text-blue-600 dark:text-blue-400 mb-2">{stat.value}</div>
+              <div className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{stat.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    );
+
+    const LavenderContent = () => (
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -50 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto px-4 py-12 space-y-32"
+        dir="rtl"
+      >
+        {/* Hero Section */}
+        <div className="text-center" dir="ltr">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            className="inline-block px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-bold text-sm mb-6 border border-purple-200 dark:border-purple-700/50"
+          >
+            Pharma-Grade Essential Oils
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 leading-tight"
+          >
+            From Space to the Still.
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+            className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed" dir="rtl"
+          >
+            نُهندس جودة الزيوت العطرية (Linalool) عكسياً. نتتبع اللحظة المثالية للحصاد من الفضاء لمنع تعفن الجذور، وزيادة الإنتاجية لتطابق المعايير الصيدلانية العالمية.
+          </motion.p>
+
+           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-10 flex justify-center gap-4">
+            <button className="px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg shadow-lg hover:shadow-purple-500/30 transition-all hover:-translate-y-1">
+              انضم لبرنامج التصدير
+            </button>
+          </motion.div>
+        </div>
+
+        {/* The Core Methodology */}
+        <div>
+          <SectionTitle 
+            title="كيف نحمي استثمارك؟" 
+            subtitle="اللافندر محصول حساس يُباع بالجرام. أي خطأ في الري أو موعد الحصاد يكلف الكثير."
+            gradient="from-purple-600 to-pink-500"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <GlassCard delay={0.1} colorScheme="from-purple-500 to-pink-500">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="p-5 bg-purple-100 dark:bg-purple-500/20 rounded-2xl shrink-0">
+                  <Radio className="text-purple-600 dark:text-purple-400" size={40} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">مراقبة فضائية لحل "الحصاد الأعمى"</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg mb-4">
+                    تتتبع الأقمار الصناعية رطوبة المظلة النباتية (NDWI) كل 10 أيام. تتحول الخريطة إلى <span className="font-bold text-purple-600 dark:text-purple-400">اللون البنفسجي</span> عندما يصل النبات إلى نقطة الإجهاد المائي المعتدل، وهي اللحظة المثالية للحصاد.
+                  </p>
+                  <ul className="space-y-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="text-green-500" size={16}/> تحديد موعد الحصاد بدقة</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="text-green-500" size={16}/> ضمان أعلى تركيز للزيت العطري</li>
+                  </ul>
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard delay={0.2} colorScheme="from-purple-500 to-pink-500">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="p-5 bg-pink-100 dark:bg-pink-500/20 rounded-2xl shrink-0">
+                  <ShieldCheck className="text-pink-600 dark:text-pink-400" size={40} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">حماية أرضية من "تعفن الجذور"</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg mb-4">
+                    اللافندر حساس جداً للغرق. متحكمات (CM-60) الخاصة بنا تركب على صمامات التنقيط لاكتشاف الانفجارات أو الانسداد، وتوقف المياه تلقائياً لتجنب الخسارة.
+                  </p>
+                   <ul className="space-y-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="text-green-500" size={16}/> إغلاق آلي للمياه عند الخطر</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="text-green-500" size={16}/> إرسال تنبيه واتساب للمشرف</li>
+                  </ul>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
+        </div>
+
+        {/* ROI & Science */}
+        <div>
+          <SectionTitle 
+            title="العائد الاقتصادي والعلمي" 
+            subtitle="لماذا يعتبر الاشتراك في النظام استثماراً رابحاً من اليوم الأول؟"
+            gradient="from-purple-600 to-pink-500"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <GlassCard delay={0.3} colorScheme="from-purple-500 to-pink-500" className="text-center">
+              <div className="inline-flex p-4 rounded-full bg-purple-100 dark:bg-purple-900/30 mb-4">
+                <Droplet className="text-purple-600 dark:text-purple-400" size={32} />
+              </div>
+              <h4 className="text-2xl font-bold mb-3">The 33% Sweet Spot</h4>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                أثبتت الأبحاث (MDPI 2025) أن العجز المائي بنسبة 33% يحفز النبات لفرز أعلى نسبة من مادة Linalool كآلية دفاعية. نظامنا يضمن بقاءك في هذه النقطة.
+              </p>
+            </GlassCard>
+            
+            <GlassCard delay={0.4} colorScheme="from-purple-500 to-pink-500" className="text-center border-2 border-purple-500">
+              <div className="absolute -top-4 right-1/2 translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                أعلى عائد
+              </div>
+              <div className="inline-flex p-4 rounded-full bg-pink-100 dark:bg-pink-900/30 mb-4">
+                <TrendingUp className="text-pink-600 dark:text-pink-400" size={32} />
+              </div>
+              <h4 className="text-2xl font-bold mb-3">+47% زيادة في الزيت</h4>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                تطبيق "النقطة المثالية" يرفع من إنتاجية الزيوت العطرية المطابقة للمواصفات الصيدلانية بنسبة تصل إلى 47٪ مقارنة بالزراعة التقليدية العشوائية.
+              </p>
+            </GlassCard>
+
+            <GlassCard delay={0.5} colorScheme="from-purple-500 to-pink-500" className="text-center">
+              <div className="inline-flex p-4 rounded-full bg-indigo-100 dark:bg-indigo-900/30 mb-4">
+                <DollarSign className="text-indigo-600 dark:text-indigo-400" size={32} />
+              </div>
+              <h4 className="text-2xl font-bold mb-3">50 جنيه / فدان</h4>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                تكلفة اشتراك المنظومة (SaaS) تعادل 50 جنيهاً للفدان شهرياً. العائد من تصدير جرامات إضافية من الزيت يغطي تكلفة المنظومة بالكامل من الحصاد الأول!
+              </p>
+            </GlassCard>
+          </div>
+        </div>
+      </motion.div>
+    );
+
+    const App = () => {
+      const [theme, setTheme] = useState('dark');
+      const [division, setDivision] = useState('agrisat'); // 'agrisat' or 'lavender'
+
+      useEffect(() => {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }, [theme]);
+
+      const isAgri = division === 'agrisat';
+      const isDark = theme === 'dark';
+      
+      // Dynamic colors based on theme and division
+      const blobColor = isAgri ? '#3b82f6' : '#a855f7'; 
+      const ambientLightColor = isDark ? (isAgri ? '#e0f2fe' : '#f3e8ff') : '#ffffff';
+      const ambientIntensity = isDark ? 0.5 : 1.5;
+
+      return (
+        <div 
+          className={`relative min-h-screen transition-colors duration-1000 ease-in-out font-sans overflow-x-hidden`}
+        >
+          {/* Background Canvas (3D Shader) */}
+          <div className="fixed inset-0 z-0 pointer-events-none">
+            <div className={`absolute inset-0 transition-colors duration-1000 z-10 ${isDark ? 'bg-black/60' : 'bg-slate-50/70'}`} />
+            <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+              <ambientLight intensity={ambientIntensity} color={ambientLightColor} />
+              <directionalLight position={[10, 10, 5]} intensity={isDark ? 2 : 1} />
+              <directionalLight position={[-10, -10, -5]} intensity={1} color={blobColor} />
+              <Suspense fallback={null}>
+                <LiquidBlob color={blobColor} isDark={isDark} />
+                <Environment preset={isDark ? 'night' : 'city'} />
+                {isDark && <ContactShadows position={[0, -2, 0]} opacity={0.5} scale={10} blur={2} far={4} />}
+              </Suspense>
+            </Canvas>
+          </div>
+
+          {/* Dynamic Background Glow */}
+          <div 
+            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 z-0
+              ${isAgri ? 'bg-blue-500' : 'bg-purple-500'}
+              ${isDark ? 'opacity-20' : 'opacity-[0.05]'}
+            `}
+          />
+
+          {/* Foreground UI Layer */}
+          <div className="relative z-10 flex flex-col min-h-screen">
+            <Header theme={theme} setTheme={setTheme} division={division} setDivision={setDivision} />
+            
+            <main className="flex-grow flex flex-col justify-center w-full">
+              <AnimatePresence mode="wait">
+                {division === 'agrisat' ? (
+                  <AgriSatContent key="agrisat" />
+                ) : (
+                  <LavenderContent key="lavender" />
+                )}
+              </AnimatePresence>
+            </main>
+
+            <footer className="text-center py-10 opacity-70 text-sm font-medium mt-20 border-t border-slate-200 dark:border-white/10">
+              <p>© 2026 Tayseer AgriSaT. All rights reserved.</p>
+              <p className="mt-2 flex items-center justify-center gap-2">
+                <Leaf size={16} className={isAgri ? 'text-blue-500' : 'text-purple-500'} /> 
+                Rooted in Egypt. Connected to Space.
+              </p>
+            </footer>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the React app
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
+
